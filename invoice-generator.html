@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InvoiceAI — Smart Invoices for Freelancers</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0d0d0d;
+    --paper: #faf8f3;
+    --cream: #f2ede2;
+    --accent: #c8522a;
+    --accent2: #2a5fc8;
+    --muted: #7a7265;
+    --border: #ddd8cc;
+    --success: #2a7a4b;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--paper);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--accent); }
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    background: var(--accent);
+    color: white;
+    padding: 2px 7px;
+    border-radius: 3px;
+    vertical-align: super;
+    letter-spacing: 1px;
+  }
+  nav { display: flex; gap: 1rem; align-items: center; }
+  nav a {
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color .2s;
+  }
+  nav a:hover { color: var(--ink); }
+  .btn {
+    padding: 0.55rem 1.3rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all .2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-primary { background: var(--ink); color: white; }
+  .btn-primary:hover { background: #333; }
+  .btn-accent { background: var(--accent); color: white; }
+  .btn-accent:hover { background: #b04520; }
+  .btn-outline { background: transparent; color: var(--ink); border: 1.5px solid var(--border); }
+  .btn-outline:hover { border-color: var(--ink); }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 5rem 2rem 3rem;
+    text-align: center;
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 1.2rem;
+    letter-spacing: -1px;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero p {
+    font-size: 1.05rem;
+    color: var(--muted);
+    max-width: 520px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* ── APP SHELL ── */
+  .app-shell {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem 5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  /* ── FORM PANEL ── */
+  .panel {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+  .panel-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .panel-title .step {
+    width: 24px; height: 24px;
+    background: var(--ink);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-family: 'DM Mono', monospace;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .form-row.full { grid-template-columns: 1fr; }
+  .field label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .field input, .field select, .field textarea {
+    width: 100%;
+    padding: 0.6rem 0.85rem;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-size: 0.9rem;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    transition: border-color .2s;
+    outline: none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--accent2);
+  }
+  .field textarea { resize: vertical; min-height: 60px; }
+
+  /* ── LINE ITEMS ── */
+  .items-table { width: 100%; border-collapse: collapse; margin-bottom: 0.8rem; }
+  .items-table th {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 0.4rem 0.5rem;
+    text-align: left;
+  }
+  .items-table td { padding: 0.3rem 0.4rem; }
+  .items-table input {
+    width: 100%;
+    padding: 0.45rem 0.6rem;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    outline: none;
+    transition: border-color .2s;
+  }
+  .items-table input:focus { border-color: var(--accent2); }
+  .items-table .del-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    transition: all .2s;
+  }
+  .items-table .del-btn:hover { color: var(--accent); background: #fdf0ec; }
+
+  .add-item-btn {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent2);
+    background: none;
+    border: 1.5px dashed var(--accent2);
+    border-radius: 6px;
+    padding: 0.45rem 1rem;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 1.2rem;
+    transition: all .2s;
+  }
+  .add-item-btn:hover { background: #f0f4ff; }
+
+  .totals {
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+  }
+  .totals-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.88rem;
+    padding: 0.3rem 0;
+    color: var(--muted);
+  }
+  .totals-row.grand {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--ink);
+    border-top: 2px solid var(--ink);
+    margin-top: 0.5rem;
+    padding-top: 0.6rem;
+  }
+
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1.5rem 0;
+  }
+
+  /* ── AI ASSISTANT ── */
+  .ai-strip {
+    background: linear-gradient(135deg, #0d0d0d 0%, #1a1a2e 100%);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0 1rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  .ai-icon {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .ai-strip h3 { color: white; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.3rem; }
+  .ai-strip p { color: #aaa; font-size: 0.78rem; line-height: 1.5; }
+
+  .ai-prompt-row { display: flex; gap: 0.6rem; margin-top: 0.8rem; }
+  .ai-prompt-input {
+    flex: 1;
+    padding: 0.55rem 0.9rem;
+    border-radius: 7px;
+    border: none;
+    font-size: 0.85rem;
+    font-family: 'DM Sans', sans-serif;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    outline: none;
+  }
+  .ai-prompt-input::placeholder { color: #666; }
+  .ai-prompt-input:focus { background: rgba(255,255,255,0.15); }
+  .ai-go-btn {
+    padding: 0.55rem 1.1rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 7px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: background .2s;
+    white-space: nowrap;
+  }
+  .ai-go-btn:hover { background: #b04520; }
+  .ai-go-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .ai-response {
+    background: rgba(255,255,255,0.07);
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+    margin-top: 0.8rem;
+    color: #ddd;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    display: none;
+    white-space: pre-wrap;
+    font-family: 'DM Mono', monospace;
+  }
+  .ai-response.visible { display: block; }
+
+  /* ── PREVIEW ── */
+  .preview-panel {
+    position: sticky;
+    top: 80px;
+  }
+  .invoice-preview {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+  .inv-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--ink);
+  }
+  .inv-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+  }
+  .inv-meta { text-align: right; }
+  .inv-meta .inv-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+  .inv-meta .inv-date { font-size: 0.82rem; color: var(--muted); }
+  .inv-status {
+    display: inline-block;
+    padding: 2px 10px;
+    background: #fdf0ec;
+    color: var(--accent);
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 0.3rem;
+  }
+
+  .inv-parties {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .inv-party-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+  .inv-party-name { font-weight: 700; margin-bottom: 0.2rem; }
+  .inv-party-info { color: var(--muted); font-size: 0.82rem; }
+
+  .inv-items { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+  .inv-items thead tr { border-bottom: 1px solid var(--border); }
+  .inv-items th {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 0.5rem 0.6rem;
+    text-align: left;
+  }
+  .inv-items th:last-child { text-align: right; }
+  .inv-items td { padding: 0.7rem 0.5rem; border-bottom: 1px solid var(--cream); }
+  .inv-items td:last-child { text-align: right; font-family: 'DM Mono', monospace; }
+  .inv-items .item-desc { font-weight: 500; }
+  .inv-items .item-detail { font-size: 0.75rem; color: var(--muted); }
+
+  .inv-totals { margin-left: auto; width: 55%; }
+  .inv-total-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--muted);
+  }
+  .inv-total-row .val { font-family: 'DM Mono', monospace; }
+  .inv-total-grand {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+    padding: 0.6rem 0.8rem;
+    background: var(--cream);
+    border-radius: 6px;
+    margin-top: 0.5rem;
+  }
+  .inv-total-grand .val { font-family: 'DM Mono', monospace; }
+
+  .inv-footer {
+    margin-top: 2rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.78rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .inv-notes { max-width: 55%; line-height: 1.6; }
+  .inv-powered {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    color: #ccc;
+  }
+
+  /* ── ACTION BAR ── */
+  .action-bar {
+    display: flex;
+    gap: 0.7rem;
+    margin-top: 1.2rem;
+  }
+  .action-bar .btn { flex: 1; font-size: 0.82rem; }
+
+  /* ── STATS ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem 2.5rem;
+  }
+  .stat-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+  }
+  .stat-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .stat-sub { font-size: 0.75rem; color: var(--success); margin-top: 0.2rem; font-weight: 500; }
+
+  /* ── LOADING ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  @media (max-width: 800px) {
+    .app-shell { grid-template-columns: 1fr; }
+    .preview-panel { position: static; }
+    .form-row { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: 1fr; }
+    header { padding: 1rem 1.2rem; }
+    nav { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Invoice<span>AI</span> <sup class="badge">FREE</sup></div>
+  <nav>
+    <a href="#">Templates</a>
+    <a href="#">Pricing</a>
+    <a href="#">Blog</a>
+    <button class="btn btn-outline" onclick="alert('Sign up coming soon!')">Sign In</button>
+    <button class="btn btn-primary" onclick="alert('Sign up coming soon!')">Get Started Free</button>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-eyebrow">✦ AI-powered · Free forever · No account needed</p>
+  <h1>Beautiful invoices,<br><em>written by AI</em></h1>
+  <p>Describe your work in plain English. Our AI writes professional line items, calculates totals, and generates a polished invoice — in seconds.</p>
+</section>
+
+<!-- STATS -->
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-label">Invoices Generated</div>
+    <div class="stat-value">14,821</div>
+    <div class="stat-sub">↑ 312 today</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Total Value Invoiced</div>
+    <div class="stat-value">$2.4M</div>
+    <div class="stat-sub">↑ $48k this week</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Time Saved vs. Manual</div>
+    <div class="stat-value">~18 min</div>
+    <div class="stat-sub">per invoice on average</div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div class="app-shell">
+
+  <!-- LEFT: FORM -->
+  <div>
+    <!-- FROM / TO -->
+    <div class="panel" style="margin-bottom:1.5rem">
+      <div class="panel-title"><span class="step">1</span> Your Details</div>
+      <div class="form-row">
+        <div class="field"><label>Your Name / Company</label><input type="text" id="fromName" placeholder="Jane Smith Design" oninput="updatePreview()"></div>
+        <div class="field"><label>Email</label><input type="email" id="fromEmail" placeholder="jane@studio.com" oninput="updatePreview()"></div>
+      </div>
+      <div class="form-row full">
+        <div class="field"><label>Address</label><input type="text" id="fromAddr" placeholder="123 Main St, New York, NY 10001" oninput="updatePreview()"></div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:1.5rem">
+      <div class="panel-title"><span class="step">2</span> Client Details</div>
+      <div class="form-row">
+        <div class="field"><label>Client Name / Company</label><input type="text" id="toName" placeholder="Acme Corp" oninput="updatePreview()"></div>
+        <div class="field"><label>Client Email</label><input type="email" id="toEmail" placeholder="billing@acme.com" oninput="updatePreview()"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Invoice #</label><input type="text" id="invNumber" placeholder="INV-0042" oninput="updatePreview()"></div>
+        <div class="field"><label>Due Date</label><input type="date" id="dueDate" oninput="updatePreview()"></div>
+      </div>
+    </div>
+
+    <!-- AI BLOCK -->
+    <div class="panel" style="margin-bottom:1.5rem">
+      <div class="panel-title"><span class="step">3</span> Line Items</div>
+
+      <div class="ai-strip">
+        <div class="ai-icon">✦</div>
+        <div style="flex:1">
+          <h3>AI Line Item Generator</h3>
+          <p>Describe your work and AI will write professional line items with rates.</p>
+          <div class="ai-prompt-row">
+            <input class="ai-prompt-input" id="aiPrompt" placeholder="e.g. Built a landing page, 3 rounds of revisions, SEO setup…">
+            <button class="ai-go-btn" id="aiBtn" onclick="generateWithAI()">✦ Generate</button>
+          </div>
+          <div class="ai-response" id="aiResponse"></div>
+        </div>
+      </div>
+
+      <!-- Manual items table -->
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th style="width:45%">Description</th>
+            <th style="width:15%">Qty</th>
+            <th style="width:20%">Rate</th>
+            <th style="width:15%">Amount</th>
+            <th style="width:5%"></th>
+          </tr>
+        </thead>
+        <tbody id="itemsBody"></tbody>
+      </table>
+      <button class="add-item-btn" onclick="addItem()">+ Add Line Item</button>
+
+      <div class="field" style="margin-bottom:0.8rem">
+        <label>Tax Rate (%)</label>
+        <input type="number" id="taxRate" value="0" min="0" max="100" step="0.5" style="width:120px" oninput="updatePreview()">
+      </div>
+
+      <div class="totals" id="totalsDisplay">
+        <div class="totals-row"><span>Subtotal</span><span id="subtotalDisp">$0.00</span></div>
+        <div class="totals-row"><span>Tax</span><span id="taxDisp">$0.00</span></div>
+        <div class="totals-row grand"><span>Total Due</span><span id="totalDisp">$0.00</span></div>
+      </div>
+
+      <hr class="section-divider">
+      <div class="field">
+        <label>Notes / Payment Instructions</label>
+        <textarea id="notes" placeholder="Payment due within 30 days. Bank transfer preferred. Thank you for your business!" oninput="updatePreview()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: PREVIEW -->
+  <div class="preview-panel">
+    <div class="panel-title" style="padding:0 0 1rem"><span class="step" style="background:var(--accent)">4</span> Live Preview</div>
+
+    <div class="invoice-preview" id="invoicePreview">
+      <div class="inv-header">
+        <div>
+          <div class="inv-logo" id="prevFromName">Your Company</div>
+          <div style="font-size:0.78rem;color:var(--muted);margin-top:0.3rem" id="prevFromEmail">your@email.com</div>
+          <div style="font-size:0.78rem;color:var(--muted)" id="prevFromAddr"></div>
+        </div>
+        <div class="inv-meta">
+          <div class="inv-number" id="prevInvNum">INV-0001</div>
+          <div class="inv-date" id="prevDueDate"></div>
+          <div class="inv-status">UNPAID</div>
+        </div>
+      </div>
+
+      <div class="inv-parties">
+        <div>
+          <div class="inv-party-label">From</div>
+          <div class="inv-party-name" id="prevFrom2">Your Company</div>
+          <div class="inv-party-info" id="prevFromInfo"></div>
+        </div>
+        <div>
+          <div class="inv-party-label">Bill To</div>
+          <div class="inv-party-name" id="prevToName">Client Name</div>
+          <div class="inv-party-info" id="prevToEmail"></div>
+        </div>
+      </div>
+
+      <table class="inv-items">
+        <thead>
+          <tr>
+            <th style="width:50%">Description</th>
+            <th style="width:12%">Qty</th>
+            <th style="width:18%">Rate</th>
+            <th style="width:20%">Amount</th>
+          </tr>
+        </thead>
+        <tbody id="prevItems"></tbody>
+      </table>
+
+      <div class="inv-totals">
+        <div class="inv-total-row"><span>Subtotal</span><span class="val" id="prevSubtotal">$0.00</span></div>
+        <div class="inv-total-row"><span>Tax</span><span class="val" id="prevTax">$0.00</span></div>
+        <div class="inv-total-grand"><span>Total Due</span><span class="val" id="prevTotal">$0.00</span></div>
+      </div>
+
+      <div class="inv-footer">
+        <div class="inv-notes" id="prevNotes">Payment due within 30 days. Thank you for your business!</div>
+        <div class="inv-powered">InvoiceAI.app</div>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <button class="btn btn-outline" onclick="window.print()">🖨 Print PDF</button>
+      <button class="btn btn-accent" onclick="downloadInvoice()">↓ Download PDF</button>
+      <button class="btn btn-primary" onclick="sendInvoice()">✉ Send Invoice</button>
+    </div>
+
+    <p style="text-align:center;font-size:0.72rem;color:var(--muted);margin-top:1rem">
+      Free forever · No watermarks · No account required
+    </p>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+let items = [
+  { desc: 'Website Design & Development', qty: 1, rate: 3500 },
+  { desc: 'SEO Optimization Setup', qty: 1, rate: 500 },
+];
+
+// ── RENDER ITEMS ──
+function renderItems() {
+  const tbody = document.getElementById('itemsBody');
+  tbody.innerHTML = '';
+  items.forEach((item, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input value="${item.desc}" onchange="items[${i}].desc=this.value;updatePreview()" placeholder="Service description"></td>
+      <td><input type="number" value="${item.qty}" min="0" step="0.5" onchange="items[${i}].qty=+this.value;updatePreview()" style="text-align:center"></td>
+      <td><input type="number" value="${item.rate}" min="0" step="0.01" onchange="items[${i}].rate=+this.value;updatePreview()" style="text-align:right"></td>
+      <td><input value="$${(item.qty*item.rate).toFixed(2)}" readonly style="background:#f9f9f9;text-align:right;color:var(--muted)"></td>
+      <td><button class="del-btn" onclick="removeItem(${i})">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  updatePreview();
+}
+
+function addItem() {
+  items.push({ desc: '', qty: 1, rate: 0 });
+  renderItems();
+}
+
+function removeItem(i) {
+  items.splice(i, 1);
+  renderItems();
+}
+
+function fmt(n) { return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+// ── UPDATE PREVIEW ──
+function updatePreview() {
+  // From
+  const fromName = document.getElementById('fromName').value || 'Your Company';
+  document.getElementById('prevFromName').textContent = fromName;
+  document.getElementById('prevFrom2').textContent = fromName;
+  const fromEmail = document.getElementById('fromEmail').value;
+  document.getElementById('prevFromEmail').textContent = fromEmail;
+  document.getElementById('prevFromInfo').textContent = fromEmail;
+  document.getElementById('prevFromAddr').textContent = document.getElementById('fromAddr').value;
+
+  // To
+  const toName = document.getElementById('toName').value || 'Client Name';
+  document.getElementById('prevToName').textContent = toName;
+  document.getElementById('prevToEmail').textContent = document.getElementById('toEmail').value;
+
+  // Meta
+  document.getElementById('prevInvNum').textContent = document.getElementById('invNumber').value || 'INV-0001';
+  const dd = document.getElementById('dueDate').value;
+  document.getElementById('prevDueDate').textContent = dd ? 'Due: ' + new Date(dd).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+
+  // Items
+  const prevItems = document.getElementById('prevItems');
+  prevItems.innerHTML = '';
+  let subtotal = 0;
+  items.forEach(item => {
+    const amt = item.qty * item.rate;
+    subtotal += amt;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="item-desc">${item.desc || 'Service'}</td>
+      <td style="color:var(--muted)">${item.qty}</td>
+      <td>${fmt(item.rate)}</td>
+      <td>${fmt(amt)}</td>
+    `;
+    prevItems.appendChild(tr);
+  });
+
+  // Totals
+  const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+  const tax = subtotal * taxRate / 100;
+  const total = subtotal + tax;
+
+  document.getElementById('subtotalDisp').textContent = fmt(subtotal);
+  document.getElementById('taxDisp').textContent = fmt(tax);
+  document.getElementById('totalDisp').textContent = fmt(total);
+  document.getElementById('prevSubtotal').textContent = fmt(subtotal);
+  document.getElementById('prevTax').textContent = fmt(tax);
+  document.getElementById('prevTotal').textContent = fmt(total);
+
+  // Notes
+  const notes = document.getElementById('notes').value || 'Payment due within 30 days. Thank you for your business!';
+  document.getElementById('prevNotes').textContent = notes;
+}
+
+// ── AI GENERATOR ──
+async function generateWithAI() {
+  const prompt = document.getElementById('aiPrompt').value.trim();
+  if (!prompt) { alert('Please describe your work first.'); return; }
+
+  const btn = document.getElementById('aiBtn');
+  const respEl = document.getElementById('aiResponse');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Thinking…';
+  respEl.className = 'ai-response visible';
+  respEl.textContent = '';
+
+  const systemPrompt = `You are an expert freelance invoice assistant. When given a description of work performed, you must:
+1. Break it into 2-5 professional line items with realistic market rates
+2. Return ONLY a JSON array (no markdown, no explanation) like:
+[{"desc":"Website Design & Development","qty":1,"rate":3500},{"desc":"SEO Setup","qty":1,"rate":400}]
+
+Be specific, professional, and use fair market rates. Vary qty for hourly items.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 600,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await res.json();
+    const text = data.content?.map(b => b.text || '').join('');
+
+    // Try to parse JSON
+    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      items = parsed.map(p => ({ desc: p.desc, qty: p.qty, rate: p.rate }));
+      renderItems();
+      respEl.textContent = '✓ ' + items.length + ' line items generated and added below!';
+      respEl.style.color = '#6dffb3';
+    } else {
+      respEl.textContent = text;
+    }
+  } catch (err) {
+    respEl.textContent = 'Error: ' + err.message;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '✦ Generate';
+  }
+}
+
+function downloadInvoice() {
+  alert('PDF download: In production, use window.print() with a print stylesheet, or integrate jsPDF / a PDF API. This demo uses Print.');
+  window.print();
+}
+
+function sendInvoice() {
+  const toEmail = document.getElementById('toEmail').value;
+  if (!toEmail) { alert('Please enter a client email first.'); return; }
+  alert('In production: send via SendGrid/Resend API. Email would go to: ' + toEmail);
+}
+
+// ── INIT ──
+document.getElementById('invNumber').value = 'INV-' + String(Math.floor(Math.random()*9000)+1000);
+const today = new Date();
+today.setDate(today.getDate() + 30);
+document.getElementById('dueDate').value = today.toISOString().split('T')[0];
+renderItems();
+</script>
+</body>
+</html>
